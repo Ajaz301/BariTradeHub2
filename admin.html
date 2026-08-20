@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BariTradeHub — Admin</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="stylesheet" crossorigin href="/index-A5H09Y2r.css" />
+    <style>
+      .admin-shell { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+      .admin-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+      .admin-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.875rem; line-height: 2.25rem; font-weight: 600; color: #241e15; }
+      .admin-subtitle { font-size: .875rem; color: #6f5b2c; margin-top: .25rem; }
+      .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+      @media (min-width: 768px) { .stat-grid { grid-template-columns: repeat(4, 1fr); } }
+      .stat-card { background: #fff; border: 1px solid #ede7d8; border-radius: .75rem; padding: 1rem 1.25rem; }
+      .stat-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: #a89456; }
+      .stat-value { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.5rem; font-weight: 600; color: #241e15; margin-top: .25rem; }
+      .toolbar { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.25rem; }
+      .search-wrap { position: relative; flex: 1 1 220px; min-width: 200px; }
+      .search-wrap svg { position: absolute; left: .75rem; top: 50%; transform: translateY(-50%); width: 1rem; height: 1rem; color: #a89456; }
+      .search-input { width: 100%; border: 1px solid #dacfb0; background: #fff; border-radius: .5rem; padding: .625rem 1rem .625rem 2.25rem; font-size: .875rem; color: #241e15; }
+      .search-input:focus { outline: none; border-color: #8a7439; box-shadow: 0 0 0 2px #dacfb0; }
+      .table-wrap { background: #fff; border: 1px solid #ede7d8; border-radius: .75rem; overflow: hidden; }
+      .table-scroll { overflow-x: auto; }
+      table { width: 100%; border-collapse: collapse; min-width: 760px; }
+      thead th { text-align: left; font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: #6f5b2c; padding: .75rem 1rem; border-bottom: 1px solid #ede7d8; background: #faf5ec; white-space: nowrap; }
+      tbody td { padding: .75rem 1rem; border-bottom: 1px solid #f1ead7; font-size: .875rem; color: #241e15; vertical-align: middle; }
+      tbody tr:last-child td { border-bottom: 0; }
+      .pid { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8125rem; color: #574726; }
+      .price { font-weight: 600; }
+      .badge { display: inline-flex; align-items: center; gap: .25rem; padding: .125rem .5rem; border-radius: 9999px; font-size: .75rem; font-weight: 500; }
+      .badge-on { background: #dcfce7; color: #15803d; }
+      .badge-off { background: #fee2e2; color: #b91c1c; }
+      .row-actions { display: flex; gap: .5rem; justify-content: flex-end; white-space: nowrap; }
+      .icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: .375rem; border: 1px solid #ede7d8; background: #fff; cursor: pointer; transition: all .15s; color: #574726; }
+      .icon-btn:hover { background: #f7f5f0; border-color: #c2b181; }
+      .icon-btn.danger:hover { background: #fef2f2; border-color: #fca5a5; color: #b91c1c; }
+      .icon-btn svg { width: 1rem; height: 1rem; }
+      .empty-state { text-align: center; padding: 3rem 1rem; color: #a89456; }
+      .empty-state svg { width: 2.5rem; height: 2.5rem; margin: 0 auto .75rem; color: #c2b181; }
+      .modal-backdrop { position: fixed; inset: 0; background: rgba(36,30,21,.55); display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 50; }
+      .modal { background: #fff; border-radius: 1rem; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,.25); animation: fadeIn .2s ease-out; }
+      .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid #ede7d8; }
+      .modal-head h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.5rem; font-weight: 600; color: #241e15; }
+      .modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+      .field { display: flex; flex-direction: column; gap: .375rem; }
+      .field label { font-size: .8125rem; font-weight: 500; color: #574726; }
+      .field .hint { font-size: .75rem; color: #a89456; }
+      .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+      @media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }
+      .switch { display: inline-flex; align-items: center; gap: .5rem; cursor: pointer; }
+      .switch input { width: 1.125rem; height: 1.125rem; accent-color: #574726; }
+      .modal-foot { display: flex; justify-content: flex-end; gap: .75rem; padding: 1.25rem 1.5rem; border-top: 1px solid #ede7d8; }
+      .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: #241e15; color: #fdfbf7; padding: .75rem 1.25rem; border-radius: .5rem; font-size: .875rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,.2); z-index: 60; animation: fadeInUp .25s ease-out; }
+      .toast.error { background: #b91c1c; }
+      .spinner { width: 1.25rem; height: 1.25rem; border: 2px solid #ede7d8; border-top-color: #574726; border-radius: 50%; animation: spin .8s linear infinite; display: inline-block; }
+      .loading-row td { text-align: center; padding: 2.5rem 1rem; }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="admin-shell">
+        <div class="admin-header">
+          <div>
+            <div class="admin-title">BariTradeHub — Product Admin</div>
+            <div class="admin-subtitle">Manage your dry fruits and saffron catalog</div>
+          </div>
+          <button id="addBtn" class="btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add Product
+          </button>
+        </div>
+
+        <div class="stat-grid" id="stats"></div>
+
+        <div class="toolbar">
+          <div class="search-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input id="search" class="search-input" type="text" placeholder="Search by name, product ID, or category..." />
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product ID</th>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Weight</th>
+                  <th>Price (₹)</th>
+                  <th>MRP (₹)</th>
+                  <th>Stock</th>
+                  <th>Status</th>
+                  <th style="text-align:right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+
+      const SUPABASE_URL = 'https://bbczxvpgqekfmdyvtdbr.supabase.co';
+      const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiY3p4dnBncWVrZm1keXZ0ZGJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMDg3MTQsImV4cCI6MjEwMjc4NDcxNH0.4j2dJuFDDz8kQs620DWz4x_qU9wo2_p-MpXNmdbbJqU';
+
+      const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      let products = [];
+      let searchTerm = '';
+
+      const fmt = (n) => (n === null || n === undefined || n === '') ? '—' : Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      function toast(msg, isError = false) {
+        const el = document.createElement('div');
+        el.className = 'toast' + (isError ? ' error' : '');
+        el.textContent = msg;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 2800);
+      }
+
+      function renderStats() {
+        const total = products.length;
+        const active = products.filter(p => p.is_active).length;
+        const outOfStock = products.filter(p => Number(p.stock) <= 0).length;
+        const catalogValue = products.reduce((s, p) => s + (Number(p.price) || 0) * (Number(p.stock) || 0), 0);
+        document.getElementById('stats').innerHTML = `
+          <div class="stat-card"><div class="stat-label">Total Products</div><div class="stat-value">${total}</div></div>
+          <div class="stat-card"><div class="stat-label">Active</div><div class="stat-value">${active}</div></div>
+          <div class="stat-card"><div class="stat-label">Out of Stock</div><div class="stat-value">${outOfStock}</div></div>
+          <div class="stat-card"><div class="stat-label">Catalog Value</div><div class="stat-value">₹${fmt(catalogValue)}</div></div>
+        `;
+      }
+
+      function renderRows() {
+        const term = searchTerm.trim().toLowerCase();
+        const list = term
+          ? products.filter(p =>
+              (p.name || '').toLowerCase().includes(term) ||
+              (p.product_id || '').toLowerCase().includes(term) ||
+              (p.category || '').toLowerCase().includes(term))
+          : products;
+
+        const tbody = document.getElementById('rows');
+        if (list.length === 0) {
+          tbody.innerHTML = `
+            <tr><td colspan="9">
+              <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9M14 17H5M20 17h-3M3 7h3"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/></svg>
+                <div>${term ? 'No products match your search.' : 'No products yet. Click "Add Product" to create your first one.'}</div>
+              </div>
+            </td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = list.map(p => `
+          <tr>
+            <td class="pid">${escapeHtml(p.product_id)}</td>
+            <td>${escapeHtml(p.name)}</td>
+            <td>${escapeHtml(p.category || '—')}</td>
+            <td>${escapeHtml(p.weight || '—')}</td>
+            <td class="price">${fmt(p.price)}</td>
+            <td>${fmt(p.mrp)}</td>
+            <td>${Number(p.stock)}</td>
+            <td><span class="badge ${p.is_active ? 'badge-on' : 'badge-off'}">${p.is_active ? 'Active' : 'Hidden'}</span></td>
+            <td>
+              <div class="row-actions">
+                <button class="icon-btn" data-edit="${p.id}" title="Edit">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                </button>
+                <button class="icon-btn danger" data-del="${p.id}" title="Delete">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>`).join('');
+
+        tbody.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', () => openModal(products.find(p => p.id === b.dataset.edit))));
+        tbody.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => delProduct(b.dataset.del)));
+      }
+
+      function escapeHtml(s) {
+        return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+      }
+
+      async function load() {
+        document.getElementById('rows').innerHTML = '<tr><td colspan="9"><div class="loading-row"><span class="spinner"></span></div></td></tr>';
+        const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+        if (error) {
+          document.getElementById('rows').innerHTML = `<tr><td colspan="9"><div class="empty-state">Failed to load products: ${escapeHtml(error.message)}</div></td></tr>`;
+          return;
+        }
+        products = data || [];
+        renderStats();
+        renderRows();
+      }
+
+      function openModal(product = null) {
+        const isEdit = !!product;
+        const p = product || { product_id:'', name:'', category:'', weight:'', price:'', mrp:'', stock:'', image_url:'', description:'', is_active:true };
+
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-backdrop';
+        overlay.innerHTML = `
+          <div class="modal" role="dialog" aria-modal="true">
+            <div class="modal-head">
+              <h2>${isEdit ? 'Edit Product' : 'Add Product'}</h2>
+              <button class="icon-btn" data-close aria-label="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <form id="productForm" class="modal-body">
+              <div class="field">
+                <label for="f_pid">Product ID</label>
+                <input id="f_pid" class="input-field" required value="${escapeHtml(p.product_id)}" ${isEdit ? 'readonly style="background:#f7f5f0;color:#a89456"' : ''} placeholder="e.g. BTH-WAL-500" />
+                <span class="hint">Unique SKU. Cannot be changed after creation.</span>
+              </div>
+              <div class="field">
+                <label for="f_name">Product Name</label>
+                <input id="f_name" class="input-field" required value="${escapeHtml(p.name)}" placeholder="e.g. Kashmiri Walnuts" />
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="f_cat">Category</label>
+                  <input id="f_cat" class="input-field" value="${escapeHtml(p.category || '')}" placeholder="e.g. Dry Fruits" />
+                </div>
+                <div class="field">
+                  <label for="f_weight">Weight / Pack Size</label>
+                  <input id="f_weight" class="input-field" value="${escapeHtml(p.weight || '')}" placeholder="e.g. 500g, 1kg" />
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="f_price">Price (₹)</label>
+                  <input id="f_price" class="input-field" type="number" step="0.01" min="0" required value="${p.price ?? ''}" placeholder="0.00" />
+                </div>
+                <div class="field">
+                  <label for="f_mrp">MRP (₹) — optional</label>
+                  <input id="f_mrp" class="input-field" type="number" step="0.01" min="0" value="${p.mrp ?? ''}" placeholder="0.00" />
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="f_stock">Stock (units)</label>
+                  <input id="f_stock" class="input-field" type="number" min="0" value="${p.stock ?? 0}" placeholder="0" />
+                </div>
+                <div class="field">
+                  <label for="f_img">Image URL — optional</label>
+                  <input id="f_img" class="input-field" value="${escapeHtml(p.image_url || '')}" placeholder="https://..." />
+                </div>
+              </div>
+              <div class="field">
+                <label for="f_desc">Description — optional</label>
+                <textarea id="f_desc" class="input-field" rows="3" placeholder="Short product description">${escapeHtml(p.description || '')}</textarea>
+              </div>
+              <label class="switch">
+                <input id="f_active" type="checkbox" ${p.is_active ? 'checked' : ''} />
+                <span>Active (visible on storefront)</span>
+              </label>
+            </form>
+            <div class="modal-foot">
+              <button class="btn-secondary" data-close>Cancel</button>
+              <button id="saveBtn" class="btn-primary">${isEdit ? 'Save Changes' : 'Create Product'}</button>
+            </div>
+          </div>`;
+
+        document.body.appendChild(overlay);
+        overlay.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => overlay.remove()));
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+        overlay.querySelector('#saveBtn').addEventListener('click', async () => {
+          const payload = {
+            product_id: overlay.querySelector('#f_pid').value.trim(),
+            name: overlay.querySelector('#f_name').value.trim(),
+            category: overlay.querySelector('#f_cat').value.trim() || null,
+            weight: overlay.querySelector('#f_weight').value.trim() || null,
+            price: parseFloat(overlay.querySelector('#f_price').value) || 0,
+            mrp: overlay.querySelector('#f_mrp').value ? parseFloat(overlay.querySelector('#f_mrp').value) : null,
+            stock: parseInt(overlay.querySelector('#f_stock').value, 10) || 0,
+            image_url: overlay.querySelector('#f_img').value.trim() || null,
+            description: overlay.querySelector('#f_desc').value.trim() || null,
+            is_active: overlay.querySelector('#f_active').checked,
+          };
+
+          if (!payload.product_id || !payload.name) {
+            toast('Product ID and Name are required', true);
+            return;
+          }
+
+          const btn = overlay.querySelector('#saveBtn');
+          btn.disabled = true;
+          btn.innerHTML = '<span class="spinner" style="border-color:#ede7d8;border-top-color:#fdfbf7"></span> Saving...';
+
+          let result, error;
+          if (isEdit) {
+            ({ error } = await supabase.from('products').update(payload).eq('id', p.id));
+          } else {
+            ({ error } = await supabase.from('products').insert(payload));
+          }
+
+          if (error) {
+            btn.disabled = false;
+            btn.textContent = isEdit ? 'Save Changes' : 'Create Product';
+            toast(error.message || 'Failed to save', true);
+            return;
+          }
+          overlay.remove();
+          toast(isEdit ? 'Product updated' : 'Product created');
+          await load();
+        });
+      }
+
+      async function delProduct(id) {
+        const p = products.find(x => x.id === id);
+        if (!p) return;
+        if (!confirm(`Delete "${p.name}" (${p.product_id})? This cannot be undone.`)) return;
+        const { error } = await supabase.from('products').delete().eq('id', id);
+        if (error) { toast(error.message || 'Failed to delete', true); return; }
+        toast('Product deleted');
+        await load();
+      }
+
+      document.getElementById('addBtn').addEventListener('click', () => openModal());
+      document.getElementById('search').addEventListener('input', (e) => { searchTerm = e.target.value; renderRows(); });
+
+      load();
+    </script>
+  </body>
+</html>
