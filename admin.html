@@ -204,7 +204,7 @@
 
       function openModal(product = null) {
         const isEdit = !!product;
-        const p = product || { product_id:'', name:'', category:'', weight:'', price:'', mrp:'', stock:'', image_url:'', description:'', is_active:true };
+        const p = product || { product_id:'', name:'', category:'', weight:'', price:'', mrp:'', stock:'', image_url:'', description:'', is_active:true, is_featured:false, is_bestseller:false };
 
         const overlay = document.createElement('div');
         overlay.className = 'modal-backdrop';
@@ -256,6 +256,22 @@
                   <input id="f_img" class="input-field" value="${escapeHtml(p.image_url || '')}" placeholder="https://..." />
                 </div>
               </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="f_featured">Featured on homepage</label>
+                  <select id="f_featured" class="input-field">
+                    <option value="false" ${!p.is_featured ? 'selected' : ''}>No</option>
+                    <option value="true" ${p.is_featured ? 'selected' : ''}>Yes</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="f_bestseller">Mark as bestseller</label>
+                  <select id="f_bestseller" class="input-field">
+                    <option value="false" ${!p.is_bestseller ? 'selected' : ''}>No</option>
+                    <option value="true" ${p.is_bestseller ? 'selected' : ''}>Yes</option>
+                  </select>
+                </div>
+              </div>
               <div class="field">
                 <label for="f_desc">Description — optional</label>
                 <textarea id="f_desc" class="input-field" rows="3" placeholder="Short product description">${escapeHtml(p.description || '')}</textarea>
@@ -287,6 +303,8 @@
             image_url: overlay.querySelector('#f_img').value.trim() || null,
             description: overlay.querySelector('#f_desc').value.trim() || null,
             is_active: overlay.querySelector('#f_active').checked,
+            is_featured: overlay.querySelector('#f_featured').value === 'true',
+            is_bestseller: overlay.querySelector('#f_bestseller').value === 'true',
           };
 
           if (!payload.product_id || !payload.name) {
